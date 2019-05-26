@@ -8,7 +8,7 @@ const productRoutes = require('./api/routes/products');
 const orderRoutes = require('./api/routes/orders');
 const userRoutes = require('./api/routes/user');
 
-mongoose.connect('mongodb+srv://admin:gosleep@node-rest-shop-w316j.mongodb.net/test?retryWrites=true', { useNewUrlParser: true });
+mongoose.connect(`mongodb+srv://${process.env.MONGOOSE_LOGIN}@node-rest-shop-w316j.mongodb.net/test?retryWrites=true`, { useNewUrlParser: true });
 
 
 app.use(morgan('dev'), bodyParser.urlencoded({ extended: false }), bodyParser.json());
