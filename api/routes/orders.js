@@ -1,40 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const checkAuth = require('./middleware/check-auth');
 
 const Order = require('../models/order');
 const Product = require('../models/product');
 
+const ordersController = require('../controllers/orders');
+
 //Handle incoming GET requests to /orders
-router.get('/', (req, res, next) => {
-    Order.find().select('product quantity _id').populate('product', 'name').exec()
-        .then(docs => {
-            res.status(200).json({
-                count: docs.length,
-                orders: docs.map(doc => {
-                    return {
-                        _id: doc._id,
-                        product: doc.product,
-                        quantity: doc.quantity,
-                        request: {
-                            type: 'GET',
-                            url: 'http://localhost:3000/orders' + doc._id
-                        }
-                    }
-                })
+router.get('/', checkAuth, ordersController.orders_get_all)
 
-            })
-        })
-        .catch(err => {
-            res.status(500).json({
-                message: {
-                    error: err
-                }
-            })
-        })
-})
-
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
 
     Product.findById(req.body.productId)
         .then(product => {
@@ -80,7 +57,7 @@ router.post('/', (req, res, next) => {
 })
 
 
-router.get("/:orderId", (req, res, next) => {
+router.get("/:orderId", checkAuth, (req, res, next) => {
     Order.findById(req.params.orderId)
         .populate('product')
         .exec()
@@ -105,7 +82,7 @@ router.get("/:orderId", (req, res, next) => {
         });
 });
 
-router.delete("/:orderId", (req, res, next) => {
+router.delete("/:orderId", checkAuth, (req, res, next) => {
     Order.remove({ _id: req.params.orderId })
         .exec()
         .then(result => {
